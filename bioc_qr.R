@@ -1,22 +1,15 @@
-bioc_qr <- function(url, width = 800,
+bioc_qr <- function(url, fig_width = 600,
                     logo_path = "https://raw.githubusercontent.com/ChangqingW/bioc_qr/main/bioconductor_logo_rgb.svg") {
   qrsvg <- tempfile(fileext = ".svg")
-  qrcode::generate_svg(qrcode::qr_code(url), qrsvg, show = F)
-  qr <- magick::image_transparent(magick::image_read_svg(qrsvg, width = width), "white", 50)
-  logo <- magick::image_read_svg(logo_path, width = ceiling(width * 1.3))
+  qrcode::generate_svg(qrcode::qr_code(url), qrsvg, show = F, background = 'none')
+  qr <-magick::image_read_svg(qrsvg, width = ceiling(fig_width / 1.3))
+  logo <- magick::image_read_svg(logo_path, width = fig_width)
 
-  crop_str <- sprintf(
-    "%dx%d+%d+%d",
-    ceiling(width * 0.85),
-    ceiling(width * 0.85),
-    ceiling(width * 0.075),
-    ceiling(width * 0.075)
-  )
-  offset_str <- sprintf("+%d+%d", width * 0.3, width * 0.38)
+  offset_str <- sprintf("+%d+%d", ceiling(fig_width * 0.2), ceiling(fig_width * 0.25))
   magick::image_composite(
-    logo, magick::image_crop(qr, crop_str, repage = T),
+    logo, qr,
     operator = "Overlay", offset = offset_str
   )
 }
 
-#  bioc_qr("https://www.bioconductor.org/packages/release/bioc/html/FLAMES.html", width = 1000) |> magick::image_write(format='png' , path='./flames_bioc.png')
+#  bioc_qr("https://www.bioconductor.org/packages/release/bioc/html/FLAMES.html", fig_width = 1000) |> magick::image_write(format='png' , path='./flames_bioc.png')
